@@ -6,6 +6,8 @@ services:
     buildCommand: npm install
     startCommand: node backend/server.js
     envVars:
+      - key: NODE_VERSION
+        value: 20
       - key: PORT
         value: 4000
       - key: RPC_URL
