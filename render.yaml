@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: evcharge-backend
+    env: node
+    rootDir: .
+    buildCommand: npm install
+    startCommand: node backend/server.js
+    envVars:
+      - key: PORT
+        value: 4000
+      - key: RPC_URL
+        sync: false
+      - key: ORACLE_PRIVATE_KEY
+        sync: false
+      - key: VALIDATION_ADDRESS
+        sync: false
+      - key: ESCROW_ADDRESS
+        sync: false
+
+  - type: web
+    name: evcharge-frontend
+    env: node
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: BACKEND_URL
+        fromService:
+          type: web
+          name: evcharge-backend
+          property: host
+      - key: NEXT_PUBLIC_TARGET_CHAIN_ID
+        value: 11155111
