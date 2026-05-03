@@ -3,7 +3,7 @@ import paho.mqtt.publish as publish
 
 app = Flask(__name__)
 
-MQTT_BROKER = "10.178.135.24"
+MQTT_BROKER = "10.107.144.24"
 MQTT_TOPIC = "battery/control"
 
 @app.route("/")
