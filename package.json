@@ -12,7 +12,7 @@
     "deploy": "npx hardhat run scripts/deployUnified.js --network sepolia",
     "deploy:local": "npx hardhat run scripts/deployUnified.js",
     "prepare-deploy": "node scripts/prepare-deploy.js",
-    "push": "npm run prepare-deploy && git add . && git commit -m 'Sync config for deployment' && git push"
+    "push": "npm run prepare-deploy && git add . && git commit -m \"Sync config for deployment\" && git push"
   },
   "author": "",
   "license": "ISC",
