@@ -2,9 +2,6 @@
   "name": "hardhat_edp",
   "version": "1.0.0",
   "main": "index.js",
-  "engines": {
-    "node": ">=20.0.0"
-  },
   "scripts": {
     "test": "npx hardhat test",
     "backend": "node backend/server.js",
@@ -31,6 +28,6 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.1",
     "ethers": "^6.16.0",
-    "express": "^5.2.1"
+    "express": "^4.22.1"
   }
 }
