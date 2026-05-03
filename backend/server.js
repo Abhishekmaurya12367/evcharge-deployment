@@ -273,9 +273,17 @@ async function runChargingSimulation(requestId) {
   chargingTimers.set(requestId, timer);
 }
 
+app.get("/", (_, res) => res.status(200).send("Backend is running"));
+
+app.get("/health", (_, res) => res.status(200).send("OK"));
+
 app.get("/api/health", async (_, res) => {
   try {
-    const network = await provider.getNetwork();
+    const networkPromise = provider.getNetwork();
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("RPC timeout")), 4000)
+    );
+    const network = await Promise.race([networkPromise, timeoutPromise]);
     res.json({ ok: true, chainId: network.chainId.toString(), rpcUrl });
   } catch (error) {
     res.json({ ok: false, chainId: null, rpcUrl, error: error.message });
