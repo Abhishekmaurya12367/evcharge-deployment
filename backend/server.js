@@ -275,7 +275,7 @@ async function runChargingSimulation(requestId) {
 
 app.get("/", (_, res) => res.status(200).send("Backend is running"));
 
-// Health check endpoint for Render
+// Health check endpoint for Render health checks
 app.get("/health", (_, res) => res.status(200).send("OK"));
 
 app.get("/api/health", async (_, res) => {
