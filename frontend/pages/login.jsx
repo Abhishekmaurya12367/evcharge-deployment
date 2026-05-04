@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { Shell } from "../lib/layout";
-import { connectWallet } from "../lib/web3";
+import { connectWallet, getContractClients } from "../lib/web3";
 import { loginProfile } from "../lib/api";
 import { saveSession } from "../lib/session";
 
@@ -42,6 +42,27 @@ export default function LoginPage() {
       const wallet = await connectWallet({ forceSelection: true });
       const selectedAddress = wallet.address;
       setAddress(selectedAddress);
+
+      // Register on-chain if not already registered
+      try {
+        const { registry } = await getContractClients(wallet.signer);
+        const userInfo = await registry.getuser(selectedAddress);
+        
+        if (!userInfo.isRegister) {
+          const tx = await registry.register_user(
+            form.evModel || "EV", 
+            form.batteryCapacity || 1, 
+            3 // Role.BOTH
+          );
+          await tx.wait();
+        }
+      } catch (chainErr) {
+        // If it fails with "user already registerd" ignore it, else throw
+        const msg = String(chainErr?.message || "").toLowerCase();
+        if (!msg.includes("already register")) {
+          throw new Error("On-chain registration failed: " + (chainErr.shortMessage || chainErr.message));
+        }
+      }
 
       const payload = { ...form, address: selectedAddress };
       await loginProfile(payload);
