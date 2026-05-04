@@ -45,7 +45,9 @@ export default function LoginPage() {
 
       // Register on-chain if not already registered
       try {
-        const { registry } = await getContractClients(wallet.signer);
+        const { getContractClients, ensureExpectedChain } = await import("../lib/web3");
+        const { registry, config } = await getContractClients(wallet.signer);
+        await ensureExpectedChain(config);
         const userInfo = await registry.getuser(selectedAddress);
         
         if (!userInfo.isRegister) {

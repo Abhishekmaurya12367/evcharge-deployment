@@ -13,8 +13,10 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [status, setStatus] = useState("");
+  const [registerError, setRegisterError] = useState("");
+  const [registerStatus, setRegisterStatus] = useState("");
+  const [verifyError, setVerifyError] = useState("");
+  const [verifyStatus, setVerifyStatus] = useState("");
   const [transactions, setTransactions] = useState([]);
   const [progress, setProgress] = useState([]);
   const [logs, setLogs] = useState([]);
@@ -51,7 +53,9 @@ export default function AdminPage() {
 
   async function refreshRegistryAdmin() {
     const wallet = await connectWallet();
-    const { registry } = await getContractClients(wallet.provider);
+    const { registry, config } = await getContractClients(wallet.provider);
+    const { ensureExpectedChain } = await import("../lib/web3");
+    await ensureExpectedChain(config);
     const admin = await registry.admin();
     setRegistryAdmin(admin);
     return { wallet, admin };
@@ -60,8 +64,8 @@ export default function AdminPage() {
   async function verifyAddressByAdmin() {
     try {
       setVerifying(true);
-      setError("");
-      setStatus("");
+      setVerifyError("");
+      setVerifyStatus("");
 
       if (!verifyTarget) {
         throw new Error("Provide a wallet address to verify");
@@ -75,9 +79,9 @@ export default function AdminPage() {
       const { registry } = await getContractClients(wallet.signer);
       const tx = await registry.varifyuser(verifyTarget);
       await tx.wait();
-      setStatus(`Address verified on-chain: ${verifyTarget}`);
+      setVerifyStatus(`Address verified on-chain: ${verifyTarget}`);
     } catch (err) {
-      setError(err.shortMessage || err.message || "Verification failed");
+      setVerifyError(err.shortMessage || err.message || "Verification failed");
     } finally {
       setVerifying(false);
     }
@@ -86,7 +90,8 @@ export default function AdminPage() {
   async function loadAdminData(adminAddress) {
     try {
       setRefreshing(true);
-      setError("");
+      setRegisterError("");
+      setVerifyError("");
       const [txResult, logResult] = await Promise.allSettled([
         getAdminTransactions(adminAddress, 300),
         getAdminLogs(adminAddress),
@@ -115,10 +120,10 @@ export default function AdminPage() {
       }
 
       if (errors.length) {
-        setError(errors.join(" | "));
+        setRegisterError(errors.join(" | "));
       }
     } catch (err) {
-      setError(err.message || "Unable to load admin data");
+      setRegisterError(err.message || "Unable to load admin data");
     } finally {
       setRefreshing(false);
     }
@@ -132,15 +137,15 @@ export default function AdminPage() {
     event.preventDefault();
     try {
       setSaving(true);
-      setError("");
-      setStatus("");
+      setRegisterError("");
+      setRegisterStatus("");
 
       await adminRegisterUser({
         adminAddress: session.address,
         ...form,
       });
 
-      setStatus("User registered in backend store successfully.");
+      setRegisterStatus("User registered in backend store successfully.");
       setForm({
         address: "",
         name: "",
@@ -151,7 +156,7 @@ export default function AdminPage() {
 
       await loadAdminData(session.address);
     } catch (err) {
-      setError(err.message || "User registration failed");
+      setRegisterError(err.message || "User registration failed");
     } finally {
       setSaving(false);
     }
@@ -209,8 +214,8 @@ export default function AdminPage() {
           </div>
         </form>
 
-        {status ? <p style={{ color: "#4caf50", marginTop: 10 }}>{status}</p> : null}
-        {error ? <p style={{ color: "#ff9f9f", marginTop: 10 }}>{error}</p> : null}
+        {registerStatus ? <p style={{ color: "#4caf50", marginTop: 10 }}>{registerStatus}</p> : null}
+        {registerError ? <p style={{ color: "#ff9f9f", marginTop: 10 }}>{registerError}</p> : null}
       </section>
 
       <section className="card" style={{ marginTop: 14 }}>
@@ -230,6 +235,8 @@ export default function AdminPage() {
           <button className="ghost" onClick={refreshRegistryAdmin}>Load registry admin</button>
           <button onClick={verifyAddressByAdmin} disabled={verifying}>{verifying ? "Verifying..." : "Verify address"}</button>
         </div>
+        {verifyStatus ? <p style={{ color: "#4caf50", marginTop: 10 }}>{verifyStatus}</p> : null}
+        {verifyError ? <p style={{ color: "#ff9f9f", marginTop: 10 }}>{verifyError}</p> : null}
       </section>
 
       <section className="card" style={{ marginTop: 14 }}>

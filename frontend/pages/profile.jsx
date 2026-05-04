@@ -29,7 +29,9 @@ export default function ProfilePage() {
       }
 
       const wallet = await connectWallet();
-      const { registry } = await getContractClients(wallet.signer);
+      const { ensureExpectedChain } = await import("../lib/web3");
+      const { registry, config } = await getContractClients(wallet.signer);
+      await ensureExpectedChain(config);
       const role = session.role === "donor" ? 1 : session.role === "receiver" ? 2 : 3;
       const tx = await registry.register_user(session.evModel || "EV", session.batteryCapacity || 1, role);
       await tx.wait();
