@@ -58,5 +58,5 @@ pages/
 - Backend reads ABIs from Hardhat artifacts generated from:
   - `contracts/EVChargingEscrow.sol`
   - `contracts/VehicleRegistry.sol`
-- Frontend writes transactions through MetaMask using backend-provided contract config.
+- Frontend writes transactions through MetaMask using backend-provided contract config. hi
 
